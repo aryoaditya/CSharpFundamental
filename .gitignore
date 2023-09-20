@@ -33,10 +33,14 @@ bld/
 [Ll]ogs/
 
 # Visual Studio 2015/2017 cache/options directory
-DatabaseConnectivity/.vs/
-DatabaseConnectivity/DatabaseConnectivity/bin
-KesiswaanBasicCSharp/.vs/
-KesiswaanBasicCSharp/KesiswaanBasicCSharp/bin
+cs4-DatabaseConnectivity/.vs/
+cs4-DatabaseConnectivity/cs4-DatabaseConnectivity/bin
+cs1-BasicCSharp-Kesiswaan/.vs/
+cs1-BasicCSharp-Kesiswaan/cs1-BasicCSharp-Kesiswaan/bin
+cs2-OOP-PenilaianSiswa/.vs/
+cs2-OOP-PenilaianSiswa/cs2-OOP-PenilaianSiswa/bin
+cs3-GenericsCollections-Library/.vs/
+cs3-GenericsCollections-Library/cs3-GenericsCollections-Library/bin
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
