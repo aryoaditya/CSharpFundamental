@@ -1,7 +1,6 @@
-﻿
-
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using System.Data;
+using BasicConnectivity;
 
 namespace DatabaseConnectivity
 {
@@ -14,15 +13,13 @@ namespace DatabaseConnectivity
         public string? StateProvince { get; set; }
         public string CountryId { get; set; }
 
-        private readonly string connectionString = "Data Source=DESKTOP-98R3UR4;Database = db_hr_dts; Integrated Security=True;Connect Timeout=30;";
-
         // GET ALL: Location
         public List<Location> GetAll()
         {
             var location = new List<Location>();
 
-            using var connection = new SqlConnection(connectionString); // Membuat objek koneksi ke database
-            using var command = new SqlCommand(); // Membuat objek untuk perintah SQL
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
             command.CommandText = "SELECT * FROM location"; // Query SELECT yang akan dijalankan
@@ -66,8 +63,8 @@ namespace DatabaseConnectivity
         // GET BY ID: Location
         public Location? GetById(int id)
         {
-            using var connection = new SqlConnection(connectionString); // Membuat objek koneksi ke database
-            using var command = new SqlCommand(); // Membuat objek untuk perintah SQL
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
             command.CommandText = "SELECT * FROM location WHERE id=@id;"; // Query yang akan dijalankan
@@ -75,13 +72,7 @@ namespace DatabaseConnectivity
             try
             {
                 // Membuat parameter untuk query SQL
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
 
@@ -119,8 +110,8 @@ namespace DatabaseConnectivity
         // INSERT: Location
         public string Insert(int id, string streetAddr, string postalCode, string city, string stateProvince, string countryId)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "INSERT INTO location VALUES (@id, @street_addr, @post_code, @city, @state_prov, @country_id);"; // Query yang akan dijalankan
@@ -128,53 +119,12 @@ namespace DatabaseConnectivity
             try
             {
                 // Membuat parameter SQL untuk mengganti nilai parameter
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
-
-                var pStreetAddr = new SqlParameter
-                {
-                    ParameterName = "@street_addr",
-                    Value = streetAddr,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pStreetAddr);
-
-                var pPostCode = new SqlParameter
-                {
-                    ParameterName = "@post_code",
-                    Value = postalCode,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pPostCode);
-
-                var pCity = new SqlParameter
-                {
-                    ParameterName = "@city",
-                    Value = city,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pCity);
-
-                var pStateProv = new SqlParameter
-                {
-                    ParameterName = "@state_prov",
-                    Value = stateProvince,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pStateProv);
-
-                var pCountryId = new SqlParameter
-                {
-                    ParameterName = "@country_id",
-                    Value = countryId,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pCountryId);
+                command.Parameters.Add(Provider.SetParameter("@id", id));
+                command.Parameters.Add(Provider.SetParameter("@street_addr", streetAddr));
+                command.Parameters.Add(Provider.SetParameter("@post_code", postalCode));
+                command.Parameters.Add(Provider.SetParameter("@city", city));
+                command.Parameters.Add(Provider.SetParameter("@state_prov", stateProvince));
+                command.Parameters.Add(Provider.SetParameter("@country_id", countryId));
 
                 connection.Open();
 
@@ -208,10 +158,11 @@ namespace DatabaseConnectivity
         }
 
         // UPDATE: Location
-        public string Update(string streetAddr, string postalCode, string city, string stateProvince, string countryId)
+        public string Update(int id, string streetAddr, string postalCode, string city, string stateProvince, string countryId)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+
             string temp;
 
             command.Connection = connection;
@@ -221,46 +172,13 @@ namespace DatabaseConnectivity
 
             try
             {
-                // Membuat parameter SQL untuk mengganti nilai parameter @street_addr
-                var pStreetAddr = new SqlParameter
-                {
-                    ParameterName = "@street_addr",
-                    Value = streetAddr,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pStreetAddr);
-
-                var pPostCode = new SqlParameter
-                {
-                    ParameterName = "@post_code",
-                    Value = postalCode,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pPostCode);
-
-                var pCity = new SqlParameter
-                {
-                    ParameterName = "@city",
-                    Value = city,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pCity);
-
-                var pStateProv = new SqlParameter
-                {
-                    ParameterName = "@state_prov",
-                    Value = stateProvince,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pStateProv);
-
-                var pCountryId = new SqlParameter
-                {
-                    ParameterName = "@country_id",
-                    Value = countryId,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pCountryId);
+                // Membuat parameter SQL untuk mengganti nilai parameter
+                command.Parameters.Add(Provider.SetParameter("@id", id));
+                command.Parameters.Add(Provider.SetParameter("@street_addr", streetAddr));
+                command.Parameters.Add(Provider.SetParameter("@post_code", postalCode));
+                command.Parameters.Add(Provider.SetParameter("@city", city));
+                command.Parameters.Add(Provider.SetParameter("@state_prov", stateProvince));
+                command.Parameters.Add(Provider.SetParameter("@country_id", countryId));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
@@ -297,8 +215,9 @@ namespace DatabaseConnectivity
         // DELETE: Location
         public string Delete(int id)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+
             string temp;
 
             command.Connection = connection;
@@ -308,14 +227,8 @@ namespace DatabaseConnectivity
 
             try
             {
-                // Membuat parameter SQL untuk mengganti nilai parameter @id
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
+                // Membuat parameter SQL untuk mengganti nilai parameter
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();

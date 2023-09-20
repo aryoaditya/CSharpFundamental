@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BasicConnectivity;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -12,14 +13,12 @@ namespace DatabaseConnectivity
         public int MinSalary { get; set; }
         public int MaxSalary { get; set; }
 
-        private readonly string connectionString = "Data Source=DESKTOP-98R3UR4;Database=db_hr_dts;Integrated Security=True;Connect Timeout=30;";
-
         public List<Job> GetAll()
         {
             var jobs = new List<Job>();
 
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "SELECT * FROM jobs";
@@ -58,21 +57,16 @@ namespace DatabaseConnectivity
 
         public Job? GetById(int id)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "SELECT * FROM jobs WHERE id=@id";
 
             try
             {
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
 
@@ -105,45 +99,19 @@ namespace DatabaseConnectivity
         }
         public string Insert(int id, string title, int minSalary, int maxSalary)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "INSERT INTO jobs VALUES (@id, @title, @minSalary, @maxSalary)";
 
             try
             {
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
-
-                var pTitle = new SqlParameter
-                {
-                    ParameterName = "@title",
-                    Value = title,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pTitle);
-
-                var pMinSalary = new SqlParameter
-                {
-                    ParameterName = "@minSalary",
-                    Value = minSalary,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pMinSalary);
-
-                var pMaxSalary = new SqlParameter
-                {
-                    ParameterName = "@maxSalary",
-                    Value = maxSalary,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pMaxSalary);
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@id", id));
+                command.Parameters.Add(Provider.SetParameter("@title", title));
+                command.Parameters.Add(Provider.SetParameter("@minSalary", minSalary));
+                command.Parameters.Add(Provider.SetParameter("@maxSalary", maxSalary));
 
                 connection.Open();
 
@@ -173,45 +141,19 @@ namespace DatabaseConnectivity
 
         public string Update(int id, string title, int minSalary, int maxSalary)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "UPDATE jobs SET title = @title, min_salary = @minSalary, max_salary = @maxSalary WHERE id = @id";
 
             try
             {
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
-
-                var pTitle = new SqlParameter
-                {
-                    ParameterName = "@title",
-                    Value = title,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pTitle);
-
-                var pMinSalary = new SqlParameter
-                {
-                    ParameterName = "@minSalary",
-                    Value = minSalary,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pMinSalary);
-
-                var pMaxSalary = new SqlParameter
-                {
-                    ParameterName = "@maxSalary",
-                    Value = maxSalary,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pMaxSalary);
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@id", id));
+                command.Parameters.Add(Provider.SetParameter("@title", title));
+                command.Parameters.Add(Provider.SetParameter("@minSalary", minSalary));
+                command.Parameters.Add(Provider.SetParameter("@maxSalary", maxSalary));
 
                 connection.Open();
 
@@ -241,21 +183,16 @@ namespace DatabaseConnectivity
 
         public string Delete(int id)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "DELETE FROM jobs WHERE id = @id";
 
             try
             {
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
 

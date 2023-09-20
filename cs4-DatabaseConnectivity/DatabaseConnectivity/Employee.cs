@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BasicConnectivity;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -19,15 +20,13 @@ namespace DatabaseConnectivity
         public string JobId { get; set; }
         public int DepartmentId { get; set; }
 
-        private readonly string connectionString = "Data Source=DESKTOP-98R3UR4;Database=db_hr_dts; Integrated Security=True;Connect Timeout=30;";
-
         // GET ALL: Employee
         public List<Employee> GetAll()
         {
             var employees = new List<Employee>();
 
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "SELECT * FROM employees";
@@ -74,21 +73,16 @@ namespace DatabaseConnectivity
         // GET BY ID: Employee
         public Employee? GetById(int id)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "SELECT * FROM employees WHERE id=@id";
 
             try
             {
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
 
@@ -125,77 +119,28 @@ namespace DatabaseConnectivity
         // INSERT: Employee
         public string Insert(Employee employee)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+
             string temp;
 
             command.Connection = connection;
-            command.CommandText = "INSERT INTO employees (first_name, last_name, email, phone_number, hire_date, salary, commission_pct, manager_id, job_id, department_id) VALUES (@first_name, @last_name, @email, @phone_number, @hire_date, @salary, @commission_pct, @manager_id, @job_id, @department_id)";
+            command.CommandText = "INSERT INTO employees VALUES (@id, @first_name, @last_name, @email, @phone_number, @hire_date, @salary, @commission_pct, @manager_id, @job_id, @department_id)";
 
             try
             {
-                var pFirstName = new SqlParameter
-                {
-                    ParameterName = "@first_name",
-                    Value = employee.FirstName,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                var pLastName = new SqlParameter
-                {
-                    ParameterName = "@last_name",
-                    Value = employee.LastName,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                var pEmail = new SqlParameter
-                {
-                    ParameterName = "@email",
-                    Value = employee.Email,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                var pPhoneNumber = new SqlParameter
-                {
-                    ParameterName = "@phone_number",
-                    Value = employee.PhoneNumber,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                var pHireDate = new SqlParameter
-                {
-                    ParameterName = "@hire_date",
-                    Value = employee.HireDate,
-                    SqlDbType = SqlDbType.DateTime
-                };
-                var pSalary = new SqlParameter
-                {
-                    ParameterName = "@salary",
-                    Value = employee.Salary,
-                    SqlDbType = SqlDbType.Int
-                };
-                var pCommissionPct = new SqlParameter
-                {
-                    ParameterName = "@commission_pct",
-                    Value = employee.CommissionPct,
-                    SqlDbType = SqlDbType.Decimal
-                };
-                var pManagerId = new SqlParameter
-                {
-                    ParameterName = "@manager_id",
-                    Value = employee.ManagerId,
-                    SqlDbType = SqlDbType.Int
-                };
-                var pJobId = new SqlParameter
-                {
-                    ParameterName = "@job_id",
-                    Value = employee.JobId,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                var pDepartmentId = new SqlParameter
-                {
-                    ParameterName = "@department_id",
-                    Value = employee.DepartmentId,
-                    SqlDbType = SqlDbType.Int
-                };
-
-                command.Parameters.AddRange(new SqlParameter[] { pFirstName, pLastName, pEmail, pPhoneNumber, pHireDate, pSalary, pCommissionPct, pManagerId, pJobId, pDepartmentId });
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@id", employee.Id));
+                command.Parameters.Add(Provider.SetParameter("@first_name", employee.FirstName));
+                command.Parameters.Add(Provider.SetParameter("@last_name", employee.LastName));
+                command.Parameters.Add(Provider.SetParameter("@email", employee.Email));
+                command.Parameters.Add(Provider.SetParameter("@phone_number", employee.PhoneNumber));
+                command.Parameters.Add(Provider.SetParameter("@hire_date", employee.HireDate));
+                command.Parameters.Add(Provider.SetParameter("@salary", employee.Salary));
+                command.Parameters.Add(Provider.SetParameter("@commission_pct", employee.CommissionPct));
+                command.Parameters.Add(Provider.SetParameter("@manager_id", employee.ManagerId));
+                command.Parameters.Add(Provider.SetParameter("@job_id", employee.JobId));
+                command.Parameters.Add(Provider.SetParameter("@department_id", employee.DepartmentId));
 
                 connection.Open();
 
@@ -229,10 +174,11 @@ namespace DatabaseConnectivity
         }
 
         // UPDATE: Employee
-        public string Update(Employee employee)
+        public string Update(Employee employee, int id)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+
             string temp;
 
             command.Connection = connection;
@@ -240,76 +186,21 @@ namespace DatabaseConnectivity
 
             try
             {
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = employee.Id,
-                    SqlDbType = SqlDbType.Int
-                };
-                var pFirstName = new SqlParameter
-                {
-                    ParameterName = "@first_name",
-                    Value = employee.FirstName,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                var pLastName = new SqlParameter
-                {
-                    ParameterName = "@last_name",
-                    Value = employee.LastName,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                var pEmail = new SqlParameter
-                {
-                    ParameterName = "@email",
-                    Value = employee.Email,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                var pPhoneNumber = new SqlParameter
-                {
-                    ParameterName = "@phone_number",
-                    Value = employee.PhoneNumber,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                var pHireDate = new SqlParameter
-                {
-                    ParameterName = "@hire_date",
-                    Value = employee.HireDate,
-                    SqlDbType = SqlDbType.DateTime
-                };
-                var pSalary = new SqlParameter
-                {
-                    ParameterName = "@salary",
-                    Value = employee.Salary,
-                    SqlDbType = SqlDbType.Int
-                };
-                var pCommissionPct = new SqlParameter
-                {
-                    ParameterName = "@commission_pct",
-                    Value = employee.CommissionPct,
-                    SqlDbType = SqlDbType.Decimal
-                };
-                var pManagerId = new SqlParameter
-                {
-                    ParameterName = "@manager_id",
-                    Value = employee.ManagerId,
-                    SqlDbType = SqlDbType.Int
-                };
-                var pJobId = new SqlParameter
-                {
-                    ParameterName = "@job_id",
-                    Value = employee.JobId,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                var pDepartmentId = new SqlParameter
-                {
-                    ParameterName = "@department_id",
-                    Value = employee.DepartmentId,
-                    SqlDbType = SqlDbType.Int
-                };
-
-                command.Parameters.AddRange(new SqlParameter[] { pId, pFirstName, pLastName, pEmail, pPhoneNumber, pHireDate, pSalary, pCommissionPct, pManagerId, pJobId, pDepartmentId });
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@id", id));
+                command.Parameters.Add(Provider.SetParameter("@first_name", employee.FirstName));
+                command.Parameters.Add(Provider.SetParameter("@last_name", employee.LastName));
+                command.Parameters.Add(Provider.SetParameter("@email", employee.Email));
+                command.Parameters.Add(Provider.SetParameter("@phone_number", employee.PhoneNumber));
+                command.Parameters.Add(Provider.SetParameter("@hire_date", employee.HireDate));
+                command.Parameters.Add(Provider.SetParameter("@salary", employee.Salary));
+                command.Parameters.Add(Provider.SetParameter("@commission_pct", employee.CommissionPct));
+                command.Parameters.Add(Provider.SetParameter("@manager_id", employee.ManagerId));
+                command.Parameters.Add(Provider.SetParameter("@job_id", employee.JobId));
+                command.Parameters.Add(Provider.SetParameter("@department_id", employee.DepartmentId));
 
                 connection.Open();
+
                 using var transaction = connection.BeginTransaction();
                 try
                 {
@@ -342,8 +233,9 @@ namespace DatabaseConnectivity
         // DELETE: Employee
         public string Delete(int id)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+
             string temp;
 
             command.Connection = connection;
@@ -351,13 +243,8 @@ namespace DatabaseConnectivity
 
             try
             {
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();

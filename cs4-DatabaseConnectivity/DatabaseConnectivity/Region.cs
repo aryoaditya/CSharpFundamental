@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using BasicConnectivity;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace DatabaseConnectivity
@@ -7,16 +8,14 @@ namespace DatabaseConnectivity
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-
-        private readonly string connectionString = "Data Source=DESKTOP-98R3UR4;Database = db_hr_dts; Integrated Security=True;Connect Timeout=30;";
-
+        
         // GET ALL: Region
         public List<Region> GetAll()
         {
             var regions = new List<Region>();
 
-            using var connection = new SqlConnection(connectionString); // Membuat objek koneksi ke database
-            using var command = new SqlCommand(); // Membuat objek untuk perintah SQL
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
             command.CommandText = "SELECT * FROM regions"; // Query SELECT yang akan dijalankan
@@ -56,22 +55,17 @@ namespace DatabaseConnectivity
         // GET BY ID: Region
         public Region? GetById(int id)
         {            
-            using var connection = new SqlConnection(connectionString); // Membuat objek koneksi ke database
-            using var command = new SqlCommand(); // Membuat objek untuk perintah SQL
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
             command.CommandText = "SELECT * FROM regions WHERE id=@id;"; // Query yang akan dijalankan
+            
 
             try
             {
                 // Membuat parameter untuk query SQL
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
 
@@ -105,8 +99,8 @@ namespace DatabaseConnectivity
         // INSERT: Region
         public string Insert(string name)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection();
+            using var command = Provider.GetCommand();
 
             command.Connection = connection;
             command.CommandText = "INSERT INTO regions VALUES (@name);"; // Query yang akan dijalankan
@@ -114,13 +108,7 @@ namespace DatabaseConnectivity
             try
             {
                 // Membuat parameter SQL untuk mengganti nilai parameter @name
-                var pName = new SqlParameter
-                {
-                    ParameterName = "@name",
-                    Value = name,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pName);
+                command.Parameters.Add(Provider.SetParameter("@name", name));
 
                 connection.Open();
 
@@ -156,8 +144,8 @@ namespace DatabaseConnectivity
         // UPDATE: Region
         public string Update(int id, string name)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection();
+            using var command = Provider.GetCommand();
             string temp;
 
             command.Connection = connection;
@@ -168,22 +156,8 @@ namespace DatabaseConnectivity
             try
             {
                 // Membuat parameter SQL untuk mengganti nilai parameter @id
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
-
-                // Membuat parameter SQL untuk mengganti nilai parameter @name
-                var pName = new SqlParameter
-                {
-                    ParameterName = "@name",
-                    Value = name,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pName);
+                command.Parameters.Add(Provider.SetParameter("@id", id));
+                command.Parameters.Add(Provider.SetParameter("@name", name));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
@@ -222,8 +196,8 @@ namespace DatabaseConnectivity
         // DELETE: Region
         public string Delete(int id)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection();
+            using var command = Provider.GetCommand();
             string temp;
 
             command.Connection = connection;
@@ -234,13 +208,7 @@ namespace DatabaseConnectivity
             try
             {
                 // Membuat parameter SQL untuk mengganti nilai parameter @id
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();

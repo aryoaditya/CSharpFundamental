@@ -1,23 +1,22 @@
 ﻿using System.Data.SqlClient;
 using System.Data;
+using BasicConnectivity;
 
 namespace DatabaseConnectivity
 {
     public class Country
     {
         public string Id { get; set; }
-        public string? Name { get; set; }
+        public string Name { get; set; }
         public int RegionId { get; set; }
-
-        private readonly string connectionString = "Data Source=DESKTOP-98R3UR4;Database = db_hr_dts; Integrated Security=True;Connect Timeout=30;";
 
         // GET ALL: Country
         public List<Country> GetAll()
         {
             var countries = new List<Country>();
 
-            using var connection = new SqlConnection(connectionString); // Membuat objek koneksi ke database
-            using var command = new SqlCommand(); // Membuat objek untuk perintah SQL
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
             command.CommandText = "SELECT * FROM countries"; // Query SELECT yang akan dijalankan
@@ -58,8 +57,8 @@ namespace DatabaseConnectivity
         // GET BY ID: Country
         public Country? GetById(string id)
         {
-            using var connection = new SqlConnection(connectionString); // Membuat objek koneksi ke database
-            using var command = new SqlCommand(); // Membuat objek untuk perintah SQL
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
             command.CommandText = "SELECT * FROM countries WHERE id=@id;"; // Query yang akan dijalankan
@@ -67,13 +66,7 @@ namespace DatabaseConnectivity
             try
             {
                 // Membuat parameter untuk query SQL
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pId);
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
 
@@ -108,40 +101,18 @@ namespace DatabaseConnectivity
         // INSERT: Country
         public string Insert(string id, string name, int regId)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "INSERT INTO countries VALUES (@id, @name, @reg_id);"; // Query yang akan dijalankan
 
             try
             {
-                // Membuat parameter SQL untuk mengganti nilai parameter @id
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pId);
-
-                // Membuat parameter SQL untuk mengganti nilai parameter @name
-                var pName = new SqlParameter
-                {
-                    ParameterName = "@name",
-                    Value = name,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pName);
-
-                // Membuat parameter SQL untuk mengganti nilai parameter @reg_id
-                var pRegId = new SqlParameter
-                {
-                    ParameterName = "@reg_id",
-                    Value = regId,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pRegId);
+                // Membuat parameter SQL
+                command.Parameters.Add(Provider.SetParameter("@id", id));
+                command.Parameters.Add(Provider.SetParameter("@name", name));
+                command.Parameters.Add(Provider.SetParameter("@reg_id", regId));
 
                 connection.Open();
 
@@ -177,8 +148,9 @@ namespace DatabaseConnectivity
         // UPDATE: Country
         public string Update(string id, string name, int regId)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+
             string temp;
 
             command.Connection = connection;
@@ -188,24 +160,11 @@ namespace DatabaseConnectivity
 
             try
             {
-                // Membuat parameter SQL untuk mengganti nilai parameter @id
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pId);
-
-                // Membuat parameter SQL untuk mengganti nilai parameter @name
-                var pName = new SqlParameter
-                {
-                    ParameterName = "@name",
-                    Value = name,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pName);
-
+                // Membuat parameter SQL
+                command.Parameters.Add(Provider.SetParameter("@id", id));
+                command.Parameters.Add(Provider.SetParameter("@name", name));
+                command.Parameters.Add(Provider.SetParameter("@reg_id", regId));
+               
                 // Membuat parameter SQL untuk mengganti nilai parameter @reg_id
                 var pRegId = new SqlParameter
                 {
@@ -250,8 +209,9 @@ namespace DatabaseConnectivity
         // DELETE: Country
         public string Delete(string id)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+
             string temp;
 
             command.Connection = connection;
@@ -262,13 +222,7 @@ namespace DatabaseConnectivity
             try
             {
                 // Membuat parameter SQL untuk mengganti nilai parameter @id
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pId);
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();

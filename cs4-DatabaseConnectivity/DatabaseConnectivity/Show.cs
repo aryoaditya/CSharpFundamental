@@ -182,9 +182,9 @@
         }
 
         // Cetak hasil Update Location
-        public static void UpdateLocation(Location location, string streetAddr, string postalCode, string city, string stateProvince, string countryId)
+        public static void UpdateLocation(Location location, int id, string streetAddr, string postalCode, string city, string stateProvince, string countryId)
         {
-            var updateResult = location.Update(streetAddr, postalCode, city, stateProvince, countryId);
+            var updateResult = location.Update(id, streetAddr, postalCode, city, stateProvince, countryId);
 
             Console.WriteLine(updateResult);
         }
@@ -305,9 +305,9 @@
         }
 
         // Cetak hasil Update History
-        public static void UpdateHistory(History history, int employeeId, DateTime endDate, int departmentId, int jobId)
+        public static void UpdateHistory(History history, DateTime startDate, int employeeId, DateTime endDate, int departmentId, int jobId)
         {
-            var updateResult = history.Update(employeeId, endDate, departmentId, jobId);
+            var updateResult = history.Update(startDate, employeeId, endDate, departmentId, jobId);
             Console.WriteLine(updateResult);
         }
 
@@ -452,7 +452,6 @@
         {
             var updateResult = employee.Update(new Employee
             {
-                Id = id,
                 FirstName = firstName,
                 LastName = lastName,
                 Email = email,
@@ -463,7 +462,7 @@
                 ManagerId = managerId,
                 JobId = jobId,
                 DepartmentId = departmentId
-            });
+            }, id);
 
             Console.WriteLine(updateResult);
         }
