@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BasicConnectivity;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -12,15 +13,13 @@ namespace DatabaseConnectivity
         public int LocationId { get; set; }
         public int ManagerId { get; set; }
 
-        private readonly string connectionString = "Data Source=DESKTOP-98R3UR4;Database=db_hr_dts; Integrated Security=True;Connect Timeout=30;";
-
         // GET ALL: Department
         public List<Department> GetAll()
         {
             var departments = new List<Department>();
 
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "SELECT * FROM departments";
@@ -60,8 +59,8 @@ namespace DatabaseConnectivity
         // GET BY ID: Department
         public Department? GetById(int id)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
             command.CommandText = "SELECT * FROM departments WHERE id=@id;";
@@ -109,8 +108,9 @@ namespace DatabaseConnectivity
         // INSERT: Department
         public string Insert(string name, int locationId, int managerId)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+
             string temp;
 
             command.Connection = connection;
@@ -176,8 +176,9 @@ namespace DatabaseConnectivity
         // UPDATE: Department
         public string Update(int id, string name, int locationId, int managerId)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+
             string temp;
 
             command.Connection = connection;
@@ -250,8 +251,9 @@ namespace DatabaseConnectivity
         // DELETE: Department
         public string Delete(int id)
         {
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand();
+            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
+            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+
             string temp;
 
             command.Connection = connection;
