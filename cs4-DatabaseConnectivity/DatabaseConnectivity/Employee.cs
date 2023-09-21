@@ -16,7 +16,7 @@ namespace DatabaseConnectivity
         public DateTime HireDate { get; set; }
         public int Salary { get; set; }
         public decimal CommissionPct { get; set; }
-        public int ManagerId { get; set; }
+        public int? ManagerId { get; set; }
         public string JobId { get; set; }
         public int DepartmentId { get; set; }
 
@@ -51,7 +51,7 @@ namespace DatabaseConnectivity
                             HireDate = reader.GetDateTime(5),
                             Salary = reader.GetInt32(6),
                             CommissionPct = reader.GetDecimal(7),
-                            ManagerId = reader.GetInt32(8),
+                            ManagerId = reader.IsDBNull(8) ? null : reader.GetInt32(8),
                             JobId = reader.GetString(9),
                             DepartmentId = reader.GetInt32(10)
                         });
@@ -102,7 +102,7 @@ namespace DatabaseConnectivity
                         HireDate = reader.GetDateTime(5),
                         Salary = reader.GetInt32(6),
                         CommissionPct = reader.GetDecimal(7),
-                        ManagerId = reader.GetInt32(8),
+                        ManagerId = reader.IsDBNull(8) ? null : reader.GetInt32(8),
                         JobId = reader.GetString(9),
                         DepartmentId = reader.GetInt32(10)
                     };

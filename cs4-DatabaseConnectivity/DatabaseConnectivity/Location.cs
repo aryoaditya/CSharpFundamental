@@ -13,6 +13,11 @@ namespace DatabaseConnectivity
         public string? StateProvince { get; set; }
         public string CountryId { get; set; }
 
+        public override string ToString()
+        {
+            return $"{Id} - {StreetAddr} - {PostalCode} - {City} - {StateProvince} - {CountryId}";
+        }
+
         // GET ALL: Location
         public List<Location> GetAll()
         {
@@ -22,7 +27,7 @@ namespace DatabaseConnectivity
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
-            command.CommandText = "SELECT * FROM location"; // Query SELECT yang akan dijalankan
+            command.CommandText = "SELECT * FROM locations"; // Query SELECT yang akan dijalankan
 
             try
             {
@@ -67,7 +72,7 @@ namespace DatabaseConnectivity
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
-            command.CommandText = "SELECT * FROM location WHERE id=@id;"; // Query yang akan dijalankan
+            command.CommandText = "SELECT * FROM locations WHERE id=@id;"; // Query yang akan dijalankan
 
             try
             {
@@ -114,7 +119,7 @@ namespace DatabaseConnectivity
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
-            command.CommandText = "INSERT INTO location VALUES (@id, @street_addr, @post_code, @city, @state_prov, @country_id);"; // Query yang akan dijalankan
+            command.CommandText = "INSERT INTO locations VALUES (@id, @street_addr, @post_code, @city, @state_prov, @country_id);"; // Query yang akan dijalankan
 
             try
             {
@@ -168,7 +173,7 @@ namespace DatabaseConnectivity
             command.Connection = connection;
 
             // Menentukan query yang akan dijalankan untuk update record berdasarkan id
-            command.CommandText = "UPDATE location SET steet_address = @street_addr, postal_code = @post_code, city = @city, state_province = @state_prov, country_id = @country_id WHERE id = @id;";
+            command.CommandText = "UPDATE locations SET steet_address = @street_addr, postal_code = @post_code, city = @city, state_province = @state_prov, country_id = @country_id WHERE id = @id;";
 
             try
             {
@@ -223,7 +228,7 @@ namespace DatabaseConnectivity
             command.Connection = connection;
 
             // Menentukan query yang akan dijalankan untuk delete record berdasarkan id
-            command.CommandText = "DELETE FROM location WHERE id = @id;";
+            command.CommandText = "DELETE FROM locations WHERE id = @id;";
 
             try
             {

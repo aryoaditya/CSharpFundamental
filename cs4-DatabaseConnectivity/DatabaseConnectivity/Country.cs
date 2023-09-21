@@ -10,6 +10,11 @@ namespace DatabaseConnectivity
         public string Name { get; set; }
         public int RegionId { get; set; }
 
+        public override string ToString()
+        {
+            return $"{Id} - {Name} - {RegionId}";
+        }
+
         // GET ALL: Country
         public List<Country> GetAll()
         {

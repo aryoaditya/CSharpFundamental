@@ -11,7 +11,7 @@ namespace DatabaseConnectivity
         public int Id { get; set; }
         public string Name { get; set; }
         public int LocationId { get; set; }
-        public int ManagerId { get; set; }
+        public int? ManagerId { get; set; }
 
         // GET ALL: Department
         public List<Department> GetAll()
@@ -39,7 +39,7 @@ namespace DatabaseConnectivity
                             Id = reader.GetInt32(0),
                             Name = reader.GetString(1),
                             LocationId = reader.GetInt32(2),
-                            ManagerId = reader.GetInt32(3)
+                            ManagerId = reader.IsDBNull(3) ? null : reader.GetInt32(3)
                         });
                     }
                     reader.Close();
@@ -88,7 +88,7 @@ namespace DatabaseConnectivity
                         Id = reader.GetInt32(0),
                         Name = reader.GetString(1),
                         LocationId = reader.GetInt32(2),
-                        ManagerId = reader.GetInt32(3)
+                        ManagerId = reader.IsDBNull(3) ? null : reader.GetInt32(3)
                     };
 
                     reader.Close();
