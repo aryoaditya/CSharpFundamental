@@ -1,98 +1,96 @@
-﻿using BasicConnectivity;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
+﻿using DatabaseConnectivity;
 
-namespace DatabaseConnectivity
+namespace DatabaseConnectivity.Models
 {
-    public class History
+    public class Country
     {
-        public DateTime StartDate { get; set; }
-        public int EmployeeId { get; set; }
-        public DateTime EndDate { get; set; }
-        public int DepartmentId { get; set; }
-        public int JobId { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public int RegionId { get; set; }
 
-        // GET ALL: History
-        public List<History> GetAll()
+        public override string ToString()
         {
-            var histories = new List<History>();
+            return $"{Id} - {Name} - {RegionId}";
+        }
+
+        // GET ALL: Country
+        public List<Country> GetAll()
+        {
+            var countries = new List<Country>();
 
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
-            command.Connection = connection;
-            command.CommandText = "SELECT * FROM history";
+            command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
+            command.CommandText = "SELECT * FROM countries"; // Query SELECT yang akan dijalankan
 
             try
             {
-                connection.Open();
+                connection.Open(); // Membuka koneksi ke database
 
-                using var reader = command.ExecuteReader();
+                using var reader = command.ExecuteReader(); // Mengeksekusi perintah SQL dan mendapatkan objek reader
 
+                // Memeriksa apakah ada baris data yang ditemukan
                 if (reader.HasRows)
                 {
                     while (reader.Read())
                     {
-                        histories.Add(new History
+                        countries.Add(new Country
                         {
-                            StartDate = reader.GetDateTime(0),
-                            EmployeeId = reader.GetInt32(1),
-                            EndDate = reader.GetDateTime(2),
-                            DepartmentId = reader.GetInt32(3),
-                            JobId = reader.GetInt32(4)
+                            Id = reader.GetString(0),
+                            Name = reader.GetString(1),
+                            RegionId = reader.GetInt32(2)
                         });
                     }
                     reader.Close();
                     connection.Close();
 
-                    return histories;
+                    return countries;
                 }
             }
             catch (Exception ex)
             {
+                // Jika terjadi error
                 Console.WriteLine($"Error: {ex.Message}");
             }
 
-            return new List<History>();
+            return new List<Country>();
         }
 
-        // GET BY ID: History
-        public History? GetById(int employeeId)
+        // GET BY ID: Country
+        public Country? GetById(string id)
         {
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
-            command.Connection = connection;
-            command.CommandText = "SELECT * FROM history WHERE employee_id=@employeeId";
+            command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
+            command.CommandText = "SELECT * FROM countries WHERE id=@id;"; // Query yang akan dijalankan
 
             try
             {
                 // Membuat parameter untuk query SQL
-                command.Parameters.Add(Provider.SetParameter("@employeeId", employeeId));
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
 
-                using var reader = command.ExecuteReader();
+                using var reader = command.ExecuteReader(); // Mengeksekusi perintah SQL dan mendapatkan objek reader
 
+                // Memeriksa apakah ada baris data yang ditemukan dan mencetak hasil
                 if (reader.HasRows)
                 {
                     reader.Read();
 
-                    History history = new History
+                    Country reg = new Country
                     {
-                        StartDate = reader.GetDateTime(0),
-                        EmployeeId = reader.GetInt32(1),
-                        EndDate = reader.GetDateTime(2),
-                        DepartmentId = reader.GetInt32(3),
-                        JobId = reader.GetInt32(4)
+                        Id = reader.GetString(0),
+                        Name = reader.GetString(1),
+                        RegionId = reader.GetInt32(2)
                     };
 
                     reader.Close();
                     connection.Close();
 
-                    return history;
+                    return reg;
                 }
             }
             catch (Exception ex)
@@ -103,59 +101,55 @@ namespace DatabaseConnectivity
             return null;
         }
 
-        // INSERT: History
-        public string Insert(DateTime startDate, int employeeId, DateTime endDate, int departmentId, int jobId)
+        // INSERT: Country
+        public string Insert(Country country)
         {
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
-            string temp;
-
             command.Connection = connection;
-            command.CommandText = "INSERT INTO history VALUES (@startDate, @employeeId, @endDate, @departmentId, @jobId)";
+            command.CommandText = "INSERT INTO countries VALUES (@id, @name, @reg_id);"; // Query yang akan dijalankan
 
             try
             {
-                // Membuat parameter untuk query SQL
-                command.Parameters.Add(Provider.SetParameter("@startDate", startDate));
-                command.Parameters.Add(Provider.SetParameter("@employeeId", employeeId));
-                command.Parameters.Add(Provider.SetParameter("@endDate", endDate));
-                command.Parameters.Add(Provider.SetParameter("@departmentId", departmentId));
-                command.Parameters.Add(Provider.SetParameter("@jobId", jobId));
+                // Membuat parameter SQL
+                command.Parameters.Add(Provider.SetParameter("@id", country.Id));
+                command.Parameters.Add(Provider.SetParameter("@name", country.Name));
+                command.Parameters.Add(Provider.SetParameter("@reg_id", country.RegionId));
 
                 connection.Open();
 
+                // Memulai transaction
                 using var transaction = connection.BeginTransaction();
                 try
                 {
+                    // Menetapkan transaction untuk command
                     command.Transaction = transaction;
 
                     var result = command.ExecuteNonQuery();
 
+                    // Melakukan commit transaction jika perintah berhasil
                     transaction.Commit();
                     connection.Close();
 
-                    temp = result switch
-                    {
-                        >= 1 => "Insert Success",
-                        _ => "Insert Failed",
-                    };
-                    return temp;
+                    return result.ToString();
                 }
                 catch (Exception ex)
                 {
+                    // Melakukan rollback transaction jika terjadi kesalahan
                     transaction.Rollback();
                     return $"Error Transaction: {ex.Message}";
                 }
             }
             catch (Exception ex)
             {
+                // Menangani kesalahan saat membuka koneksi atau eksekusi command
                 return $"Error: {ex.Message}";
             }
         }
 
-        // UPDATE: History
-        public string Update(DateTime startDate, int employeeId, DateTime endDate, int departmentId, int jobId)
+        // UPDATE: Country
+        public string Update(Country country)
         {
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
@@ -164,16 +158,15 @@ namespace DatabaseConnectivity
 
             command.Connection = connection;
 
-            command.CommandText = "UPDATE history SET end_date = @endDate, department_id = @departmentId, job_id = @jobId WHERE employee_id = @employeeId AND ";
+            // Menentukan query yang akan dijalankan untuk update record berdasarkan id
+            command.CommandText = "UPDATE countries SET name = @name, region_id = @reg_id WHERE id = @id;";
 
             try
             {
-                // Membuat parameter untuk query SQL
-                command.Parameters.Add(Provider.SetParameter("@startDate", startDate));
-                command.Parameters.Add(Provider.SetParameter("@employeeId", employeeId));
-                command.Parameters.Add(Provider.SetParameter("@endDate", endDate));
-                command.Parameters.Add(Provider.SetParameter("@departmentId", departmentId));
-                command.Parameters.Add(Provider.SetParameter("@jobId", jobId));
+                // Membuat parameter SQL
+                command.Parameters.Add(Provider.SetParameter("@id", country.Id));
+                command.Parameters.Add(Provider.SetParameter("@name", country.Name));
+                command.Parameters.Add(Provider.SetParameter("@reg_id", country.RegionId));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
@@ -186,6 +179,7 @@ namespace DatabaseConnectivity
                     transaction.Commit();
                     connection.Close();
 
+                    // Memeriksa hasil eksekusi command dan memberikan pesan sesuai
                     temp = result switch
                     {
                         >= 1 => "Update Success",
@@ -195,6 +189,7 @@ namespace DatabaseConnectivity
                 }
                 catch (Exception ex)
                 {
+                    // Melakukan rollback transaction jika terjadi kesalahan
                     transaction.Rollback();
                     return $"Error Transaction: {ex.Message}";
                 }
@@ -205,22 +200,21 @@ namespace DatabaseConnectivity
             }
         }
 
-        // DELETE: History
-        public string Delete(int employeeId)
+        // DELETE: Country
+        public string Delete(string id)
         {
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
-            string temp;
-
             command.Connection = connection;
 
-            command.CommandText = "DELETE FROM history WHERE employee_id = @employeeId";
+            // Menentukan query yang akan dijalankan untuk delete record berdasarkan id
+            command.CommandText = "DELETE FROM countries WHERE id = @id;";
 
             try
             {
-                // Membuat parameter untuk query SQL
-                command.Parameters.Add(Provider.SetParameter("@employeeId", employeeId));
+                // Membuat parameter SQL untuk mengganti nilai parameter @id
+                command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
@@ -233,15 +227,11 @@ namespace DatabaseConnectivity
                     transaction.Commit();
                     connection.Close();
 
-                    temp = result switch
-                    {
-                        >= 1 => "Delete Success",
-                        _ => "Delete Failed",
-                    };
-                    return temp;
+                    return result.ToString();
                 }
                 catch (Exception ex)
                 {
+                    // Melakukan rollback transaction jika terjadi kesalahan
                     transaction.Rollback();
                     return $"Error Transaction: {ex.Message}";
                 }

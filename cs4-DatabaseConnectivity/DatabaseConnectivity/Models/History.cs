@@ -1,28 +1,25 @@
-﻿using BasicConnectivity;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
+﻿using DatabaseConnectivity;
 
-namespace DatabaseConnectivity
+namespace DatabaseConnectivity.Models
 {
-    public class Department
+    public class History
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public int LocationId { get; set; }
-        public int? ManagerId { get; set; }
+        public DateTime StartDate { get; set; }
+        public int EmployeeId { get; set; }
+        public DateTime EndDate { get; set; }
+        public int DepartmentId { get; set; }
+        public int JobId { get; set; }
 
-        // GET ALL: Department
-        public List<Department> GetAll()
+        // GET ALL: History
+        public List<History> GetAll()
         {
-            var departments = new List<Department>();
+            var histories = new List<History>();
 
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
-            command.CommandText = "SELECT * FROM departments";
+            command.CommandText = "SELECT * FROM history";
 
             try
             {
@@ -34,18 +31,19 @@ namespace DatabaseConnectivity
                 {
                     while (reader.Read())
                     {
-                        departments.Add(new Department
+                        histories.Add(new History
                         {
-                            Id = reader.GetInt32(0),
-                            Name = reader.GetString(1),
-                            LocationId = reader.GetInt32(2),
-                            ManagerId = reader.IsDBNull(3) ? null : reader.GetInt32(3)
+                            StartDate = reader.GetDateTime(0),
+                            EmployeeId = reader.GetInt32(1),
+                            EndDate = reader.GetDateTime(2),
+                            DepartmentId = reader.GetInt32(3),
+                            JobId = reader.GetInt32(4)
                         });
                     }
                     reader.Close();
                     connection.Close();
 
-                    return departments;
+                    return histories;
                 }
             }
             catch (Exception ex)
@@ -53,27 +51,22 @@ namespace DatabaseConnectivity
                 Console.WriteLine($"Error: {ex.Message}");
             }
 
-            return new List<Department>();
+            return new List<History>();
         }
 
-        // GET BY ID: Department
-        public Department? GetById(int id)
+        // GET BY ID: History
+        public History? GetById(int employeeId)
         {
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection;
-            command.CommandText = "SELECT * FROM departments WHERE id=@id;";
+            command.CommandText = "SELECT * FROM history WHERE employee_id=@employeeId";
 
             try
             {
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@employeeId", employeeId));
 
                 connection.Open();
 
@@ -83,18 +76,19 @@ namespace DatabaseConnectivity
                 {
                     reader.Read();
 
-                    Department dept = new Department
+                    History history = new History
                     {
-                        Id = reader.GetInt32(0),
-                        Name = reader.GetString(1),
-                        LocationId = reader.GetInt32(2),
-                        ManagerId = reader.IsDBNull(3) ? null : reader.GetInt32(3)
+                        StartDate = reader.GetDateTime(0),
+                        EmployeeId = reader.GetInt32(1),
+                        EndDate = reader.GetDateTime(2),
+                        DepartmentId = reader.GetInt32(3),
+                        JobId = reader.GetInt32(4)
                     };
 
                     reader.Close();
                     connection.Close();
 
-                    return dept;
+                    return history;
                 }
             }
             catch (Exception ex)
@@ -105,8 +99,8 @@ namespace DatabaseConnectivity
             return null;
         }
 
-        // INSERT: Department
-        public string Insert(string name, int locationId, int managerId)
+        // INSERT: History
+        public string Insert(DateTime startDate, int employeeId, DateTime endDate, int departmentId, int jobId)
         {
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
@@ -114,33 +108,16 @@ namespace DatabaseConnectivity
             string temp;
 
             command.Connection = connection;
-            command.CommandText = "INSERT INTO departments VALUES (@name, @locationId, @managerId);";
+            command.CommandText = "INSERT INTO history VALUES (@startDate, @employeeId, @endDate, @departmentId, @jobId)";
 
             try
             {
-                var pName = new SqlParameter
-                {
-                    ParameterName = "@name",
-                    Value = name,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pName);
-
-                var pLocationId = new SqlParameter
-                {
-                    ParameterName = "@locationId",
-                    Value = locationId,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pLocationId);
-
-                var pManagerId = new SqlParameter
-                {
-                    ParameterName = "@managerId",
-                    Value = managerId,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pManagerId);
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@startDate", startDate));
+                command.Parameters.Add(Provider.SetParameter("@employeeId", employeeId));
+                command.Parameters.Add(Provider.SetParameter("@endDate", endDate));
+                command.Parameters.Add(Provider.SetParameter("@departmentId", departmentId));
+                command.Parameters.Add(Provider.SetParameter("@jobId", jobId));
 
                 connection.Open();
 
@@ -173,8 +150,8 @@ namespace DatabaseConnectivity
             }
         }
 
-        // UPDATE: Department
-        public string Update(int id, string name, int locationId, int managerId)
+        // UPDATE: History
+        public string Update(DateTime startDate, int employeeId, DateTime endDate, int departmentId, int jobId)
         {
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
@@ -182,41 +159,17 @@ namespace DatabaseConnectivity
             string temp;
 
             command.Connection = connection;
-            command.CommandText = "UPDATE departments SET name = @name, location_id = @locationId, manager_id = @managerId WHERE id = @id;";
+
+            command.CommandText = "UPDATE history SET end_date = @endDate, department_id = @departmentId, job_id = @jobId WHERE employee_id = @employeeId AND ";
 
             try
             {
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
-
-                var pName = new SqlParameter
-                {
-                    ParameterName = "@name",
-                    Value = name,
-                    SqlDbType = SqlDbType.VarChar
-                };
-                command.Parameters.Add(pName);
-
-                var pLocationId = new SqlParameter
-                {
-                    ParameterName = "@locationId",
-                    Value = locationId,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pLocationId);
-
-                var pManagerId = new SqlParameter
-                {
-                    ParameterName = "@managerId",
-                    Value = managerId,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pManagerId);
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@startDate", startDate));
+                command.Parameters.Add(Provider.SetParameter("@employeeId", employeeId));
+                command.Parameters.Add(Provider.SetParameter("@endDate", endDate));
+                command.Parameters.Add(Provider.SetParameter("@departmentId", departmentId));
+                command.Parameters.Add(Provider.SetParameter("@jobId", jobId));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
@@ -248,8 +201,8 @@ namespace DatabaseConnectivity
             }
         }
 
-        // DELETE: Department
-        public string Delete(int id)
+        // DELETE: History
+        public string Delete(int employeeId)
         {
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
@@ -257,17 +210,13 @@ namespace DatabaseConnectivity
             string temp;
 
             command.Connection = connection;
-            command.CommandText = "DELETE FROM departments WHERE id = @id;";
+
+            command.CommandText = "DELETE FROM history WHERE employee_id = @employeeId";
 
             try
             {
-                var pId = new SqlParameter
-                {
-                    ParameterName = "@id",
-                    Value = id,
-                    SqlDbType = SqlDbType.Int
-                };
-                command.Parameters.Add(pId);
+                // Membuat parameter untuk query SQL
+                command.Parameters.Add(Provider.SetParameter("@employeeId", employeeId));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();

@@ -1,6 +1,6 @@
 ﻿using System.Data.SqlClient;
 
-namespace BasicConnectivity;
+namespace DatabaseConnectivity;
 
 public class Provider
 {

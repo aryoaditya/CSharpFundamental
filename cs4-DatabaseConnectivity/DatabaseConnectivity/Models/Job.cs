@@ -1,10 +1,6 @@
-﻿using BasicConnectivity;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
+﻿using DatabaseConnectivity;
 
-namespace DatabaseConnectivity
+namespace DatabaseConnectivity.Models
 {
     public class Job
     {

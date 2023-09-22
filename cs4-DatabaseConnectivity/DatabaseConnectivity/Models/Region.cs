@@ -1,33 +1,27 @@
-﻿using System.Data.SqlClient;
-using System.Data;
-using BasicConnectivity;
+﻿using DatabaseConnectivity;
 
-namespace DatabaseConnectivity
+namespace DatabaseConnectivity.Models
 {
-    public class Location
+    public class Region
     {
         public int Id { get; set; }
-        public string? StreetAddr { get; set; }
-        public string? PostalCode { get; set; }
-        public string City { get; set; }
-        public string? StateProvince { get; set; }
-        public string CountryId { get; set; }
+        public string? Name { get; set; }
 
         public override string ToString()
         {
-            return $"{Id} - {StreetAddr} - {PostalCode} - {City} - {StateProvince} - {CountryId}";
+            return $"{Id} - {Name}";
         }
 
-        // GET ALL: Location
-        public List<Location> GetAll()
+        // GET ALL: Region
+        public List<Region> GetAll()
         {
-            var location = new List<Location>();
+            var regions = new List<Region>();
 
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
-            command.CommandText = "SELECT * FROM locations"; // Query SELECT yang akan dijalankan
+            command.CommandText = "SELECT * FROM regions"; // Query SELECT yang akan dijalankan
 
             try
             {
@@ -40,20 +34,16 @@ namespace DatabaseConnectivity
                 {
                     while (reader.Read())
                     {
-                        location.Add(new Location
+                        regions.Add(new Region
                         {
                             Id = reader.GetInt32(0),
-                            StreetAddr = reader.GetString(1),
-                            PostalCode = reader.GetString(2),
-                            City = reader.GetString(3),
-                            StateProvince = reader.GetString(4),
-                            CountryId = reader.GetString(5)
+                            Name = reader.GetString(1)
                         });
                     }
                     reader.Close();
                     connection.Close();
 
-                    return location;
+                    return regions;
                 }
             }
             catch (Exception ex)
@@ -62,17 +52,18 @@ namespace DatabaseConnectivity
                 Console.WriteLine($"Error: {ex.Message}");
             }
 
-            return new List<Location>();
+            return new List<Region>();
         }
 
-        // GET BY ID: Location
-        public Location? GetById(int id)
+        // GET BY ID: Region
+        public Region? GetById(int id)
         {
             using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
             using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
 
             command.Connection = connection; // Mengatur koneksi untuk objek perintah SQL
-            command.CommandText = "SELECT * FROM locations WHERE id=@id;"; // Query yang akan dijalankan
+            command.CommandText = "SELECT * FROM regions WHERE id=@id;"; // Query yang akan dijalankan
+
 
             try
             {
@@ -88,14 +79,10 @@ namespace DatabaseConnectivity
                 {
                     reader.Read();
 
-                    Location reg = new Location
+                    Region reg = new Region
                     {
                         Id = reader.GetInt32(0),
-                        StreetAddr = reader.GetString(1),
-                        PostalCode = reader.GetString(2),
-                        City = reader.GetString(3),
-                        StateProvince = reader.GetString(4),
-                        CountryId = reader.GetString(5)
+                        Name = reader.GetString(1)
                     };
 
                     reader.Close();
@@ -112,24 +99,19 @@ namespace DatabaseConnectivity
             return null;
         }
 
-        // INSERT: Location
-        public string Insert(int id, string streetAddr, string postalCode, string city, string stateProvince, string countryId)
+        // INSERT: Region
+        public string Insert(Region region)
         {
-            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
-            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
+            using var connection = Provider.GetConnection();
+            using var command = Provider.GetCommand();
 
             command.Connection = connection;
-            command.CommandText = "INSERT INTO locations VALUES (@id, @street_addr, @post_code, @city, @state_prov, @country_id);"; // Query yang akan dijalankan
+            command.CommandText = "INSERT INTO regions VALUES (@name);"; // Query yang akan dijalankan
 
             try
             {
-                // Membuat parameter SQL untuk mengganti nilai parameter
-                command.Parameters.Add(Provider.SetParameter("@id", id));
-                command.Parameters.Add(Provider.SetParameter("@street_addr", streetAddr));
-                command.Parameters.Add(Provider.SetParameter("@post_code", postalCode));
-                command.Parameters.Add(Provider.SetParameter("@city", city));
-                command.Parameters.Add(Provider.SetParameter("@state_prov", stateProvince));
-                command.Parameters.Add(Provider.SetParameter("@country_id", countryId));
+                // Membuat parameter SQL untuk mengganti nilai parameter @name
+                command.Parameters.Add(Provider.SetParameter("@name", region.Name));
 
                 connection.Open();
 
@@ -162,28 +144,22 @@ namespace DatabaseConnectivity
             }
         }
 
-        // UPDATE: Location
-        public string Update(int id, string streetAddr, string postalCode, string city, string stateProvince, string countryId)
+        // UPDATE: Region
+        public string Update(Region regionUpdate)
         {
-            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
-            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
-
-            string temp;
+            using var connection = Provider.GetConnection();
+            using var command = Provider.GetCommand();
 
             command.Connection = connection;
 
             // Menentukan query yang akan dijalankan untuk update record berdasarkan id
-            command.CommandText = "UPDATE locations SET steet_address = @street_addr, postal_code = @post_code, city = @city, state_province = @state_prov, country_id = @country_id WHERE id = @id;";
+            command.CommandText = "UPDATE regions SET name = @name WHERE id = @id;";
 
             try
             {
-                // Membuat parameter SQL untuk mengganti nilai parameter
-                command.Parameters.Add(Provider.SetParameter("@id", id));
-                command.Parameters.Add(Provider.SetParameter("@street_addr", streetAddr));
-                command.Parameters.Add(Provider.SetParameter("@post_code", postalCode));
-                command.Parameters.Add(Provider.SetParameter("@city", city));
-                command.Parameters.Add(Provider.SetParameter("@state_prov", stateProvince));
-                command.Parameters.Add(Provider.SetParameter("@country_id", countryId));
+                // Membuat parameter SQL untuk mengganti nilai parameter @id
+                command.Parameters.Add(Provider.SetParameter("@id", regionUpdate.Id));
+                command.Parameters.Add(Provider.SetParameter("@name", regionUpdate.Name));
 
                 connection.Open();
                 using var transaction = connection.BeginTransaction();
@@ -196,13 +172,7 @@ namespace DatabaseConnectivity
                     transaction.Commit();
                     connection.Close();
 
-                    // Memeriksa hasil eksekusi command dan memberikan pesan sesuai
-                    temp = result switch
-                    {
-                        >= 1 => "Update Success",
-                        _ => "Update Failed",
-                    };
-                    return temp;
+                    return result.ToString();
                 }
                 catch (Exception ex)
                 {
@@ -217,22 +187,20 @@ namespace DatabaseConnectivity
             }
         }
 
-        // DELETE: Location
+        // DELETE: Region
         public string Delete(int id)
         {
-            using var connection = Provider.GetConnection(); // Membuat objek koneksi ke database
-            using var command = Provider.GetCommand(); // Membuat objek untuk perintah SQL
-
-            string temp;
+            using var connection = Provider.GetConnection();
+            using var command = Provider.GetCommand();
 
             command.Connection = connection;
 
             // Menentukan query yang akan dijalankan untuk delete record berdasarkan id
-            command.CommandText = "DELETE FROM locations WHERE id = @id;";
+            command.CommandText = "DELETE FROM regions WHERE id = @id;";
 
             try
             {
-                // Membuat parameter SQL untuk mengganti nilai parameter
+                // Membuat parameter SQL untuk mengganti nilai parameter @id
                 command.Parameters.Add(Provider.SetParameter("@id", id));
 
                 connection.Open();
@@ -246,13 +214,7 @@ namespace DatabaseConnectivity
                     transaction.Commit();
                     connection.Close();
 
-                    // Memeriksa hasil eksekusi command dan memberikan pesan sesuai
-                    temp = result switch
-                    {
-                        >= 1 => "Delete Success",
-                        _ => "Delete Failed",
-                    };
-                    return temp;
+                    return result.ToString();
                 }
                 catch (Exception ex)
                 {
